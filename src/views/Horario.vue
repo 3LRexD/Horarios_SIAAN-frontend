@@ -96,26 +96,46 @@
             <span class="texto">materias</span>
           </div>
 
-          <button @click="descargarHorario" class="btn-generar">
-            <i class="fa-solid fa-file-excel"></i>
-            Generar Excel
+          <button class="btn-generar" @click="manejarGeneracion" :disabled="cargandoGeneracion || materiasSeleccionadas.length === 0">
+              <span v-if="cargandoGeneracion">
+                  <i class="fa-solid fa-spinner fa-spin"></i> Calculando...
+              </span>
+              <span v-else>
+                  <i class="fa-solid fa-file-excel"></i> Generar Horarios
+              </span>
           </button>
         </div>
       </div>
     </div>
 
+ 
+
+<VistaResultados 
+    v-if="mostrarResultados"
+    :opciones="opcionesGeneradas"
+    @cerrar="mostrarResultados = false"
+    @descargarExcel="descargarExcelGlobal"
+    @descargarIndividual="descargarExcelIndividual"
+    @descargarPdf="descargarPdfIndividual"
+/>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import VistaResultados from './VistaResultados.vue';
+
 
 // --- ESTADO ---
 const listaMaterias = ref([]);
 const materiasSeleccionadas = ref([]);
 const cargando = ref(true);
 const ID_ESTUDIANTE = 1;
+
+const mostrarResultados = ref(false);
+const opcionesGeneradas = ref([]);
+const cargandoGeneracion = ref(false);
 
 // --- CARGA DE DATOS ---
 onMounted(async () => {
@@ -213,6 +233,46 @@ const toggleSeleccion = (materia) => {
   // NO hace falta la línea "materiasSeleccionadas.value = ...", Vue 3 ya es reactivo con push y splice.
 };
 
+const manejarGeneracion = async () => {
+    if (materiasSeleccionadas.value.length === 0) return;
+
+    cargandoGeneracion.value = true;
+    try {
+        // Pedimos el JSON para la vista previa
+        const res = await axios.post('http://localhost:8080/api/generador/generar', materiasSeleccionadas.value);
+        
+        if (res.data.mensaje && !res.data.data) {
+            alert(res.data.mensaje); // "No hay combinaciones"
+        } else {
+            opcionesGeneradas.value = res.data; // Guardamos los datos
+            mostrarResultados.value = true;     // Abrimos el componente hijo
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Error al conectar con el servidor");
+    } finally {
+        cargandoGeneracion.value = false;
+    }
+};
+
+const descargarExcelGlobal = async () => {
+    try {
+        const response = await axios.post(
+            'http://localhost:8080/api/generador/exportar-excel', 
+            materiasSeleccionadas.value,
+            { responseType: 'blob' }
+        );
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'mis_horarios.xlsx');
+        document.body.appendChild(link);
+        link.click();
+    } catch (error) {
+        alert("Error al descargar el archivo");
+    }
+};
+
 const descargarHorario = async () => {
   if (materiasSeleccionadas.value.length === 0) {
     alert("⚠️ Selecciona al menos una materia");
@@ -239,6 +299,48 @@ const descargarHorario = async () => {
     alert("Error al generar Excel.");
   }
 };
+
+const descargarExcelIndividual = async (listaIdsParalelos) => {
+    try {
+        const response = await axios.post(
+            'http://localhost:8080/api/generador/exportar-individual', 
+            listaIdsParalelos, // Enviamos solo los IDs de esa opción
+            { responseType: 'blob' }
+        );
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'horario_seleccionado.xlsx');
+        document.body.appendChild(link);
+        link.click();
+    } catch (error) {
+        console.error(error);
+        alert("Error al descargar el horario individual.");
+    }
+};
+
+// Función para descargar PDF Individual
+const descargarPdfIndividual = async (listaIdsParalelos) => {
+    try {
+        const response = await axios.post(
+            'http://localhost:8080/api/generador/exportar-pdf-individual', 
+            listaIdsParalelos,
+            { responseType: 'blob' } // Importante
+        );
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'mi_horario.pdf'); // Extensión .pdf
+        document.body.appendChild(link);
+        link.click();
+    } catch (error) {
+        console.error(error);
+        alert("Error al descargar el PDF.");
+    }
+};
+
 </script>
 
 <style scoped>
