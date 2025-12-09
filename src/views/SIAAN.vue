@@ -89,8 +89,10 @@
 
     <!-- Main Content con Carrusel -->
     <main class="content" :class="{ 'sidebar-open': sidebarOpen }">
-      <div class="carousel-container">
+      
+      <div class="carousel-container" v-if="$route.path === '/siaan'">
         <div class="carousel" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
+          
           <div 
             v-for="(image, index) in carouselImages" 
             :key="index" 
@@ -102,7 +104,6 @@
           </div>
         </div>
         
-        <!-- Indicadores del carrusel -->
         <div class="carousel-indicators">
           <button
             v-for="(image, index) in carouselImages"
@@ -112,7 +113,6 @@
           ></button>
         </div>
 
-        <!-- Controles de navegación -->
         <button class="carousel-control prev" @click="prevSlide">
           <i class="fa-solid fa-chevron-left"></i>
         </button>
@@ -120,6 +120,9 @@
           <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
+
+      <router-view></router-view>
+
     </main>
 
     <!-- Footer -->
@@ -227,7 +230,8 @@ export default {
     },
 
     navigateToHorario() {
-      this.$router.push('/horario');
+  // Asegúrate de que apunte a la ruta hija
+      this.$router.push('/siaan/crear-horario');
     },
 
     startClock() {

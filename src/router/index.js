@@ -25,10 +25,21 @@ const routes = [
     component: Horario,
     meta: { requiresAuth: true }
   },
-  {
+  { 
     path: '/:pathMatch(.*)*',
     redirect: '/login'
-  }
+  },
+
+  { 
+  path: '/siaan', 
+  component: SIAAN, 
+  children: [
+    { 
+      path: 'crear-horario', // Ojo: sin la barra '/' al principio
+      component: Horario 
+    }
+  ]
+}
 ]
 
 const router = createRouter({
