@@ -94,14 +94,23 @@ export default {
       const usuarioEncontrado = this.usuariosValidos.find(
         u => u.correo === usuario && u.contrasena === password
       );
-
+        //PA MOSTRAR DISTINTOS HORARIOS
       if (usuarioEncontrado) {
+
+        let idEstudianteParaDemo = 2; 
+
+        if (usuario === 'ian.coaquira') {
+            idEstudianteParaDemo = 1;
+        }
+
+        localStorage.setItem('idEstudianteLogueado', idEstudianteParaDemo);
+ 
         localStorage.setItem("usuario", JSON.stringify({
           correo: usuario,
           nombre: usuarioEncontrado.nombre
         }));
-        
-        this.$router.push('/siaan');
+ 
+        this.$router.push('/siaan'); 
       } else {
         this.errors.password = "Usuario o contraseña incorrectos.";
       }

@@ -127,7 +127,7 @@
 
     <!-- Footer -->
     <footer class="footer-minimal">
-      <p>© 2025 SIAAN UCB | Desarrollado por el equipo whendell</p>
+      <p>© 2025 SIAAN UCB | Desarrollado por el equipo whendell--PROTOTIPO NO VINCULADO AL SIAAN</p>
     </footer>
   </div>
 </template>

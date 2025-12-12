@@ -75,6 +75,23 @@
                 
                 <div class="card-body">
                   {{ materia.nombre }}
+
+                  <div v-if="materia.sigla && materia.sigla.startsWith('LIB')" @click.stop style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px;">
+                      
+                      <label style="font-size: 10px; color: #666; display: block; margin-bottom: 3px; font-weight: bold;">
+                          Elegir Electiva:
+                      </label>
+                      
+                      <select style="width: 100%; font-size: 11px; padding: 2px; border: 1px solid #002b55; border-radius: 4px; background: #f0f9ff; cursor: pointer;">
+                          <option>-- Seleccionar --</option>
+                          <option>Marketing</option>
+                          <option>Futbol</option> 
+                          <option>Oratoria</option>
+                          <option>Ecuaciones diferenciales</option>
+                          <option>Epistemologia 2 </option>
+                      </select>
+
+                  </div>
                 </div>
 
               </div>
@@ -131,21 +148,24 @@ import VistaResultados from './VistaResultados.vue';
 const listaMaterias = ref([]);
 const materiasSeleccionadas = ref([]);
 const cargando = ref(true);
-const ID_ESTUDIANTE = 1;
+
+const idEstudianteActual = ref(localStorage.getItem('idEstudianteLogueado') || 1);
 
 const mostrarResultados = ref(false);
 const opcionesGeneradas = ref([]);
 const cargandoGeneracion = ref(false);
 
-// --- CARGA DE DATOS ---
-onMounted(async () => {
+// Función para cargar la malla del estudiante detectado
+const cargarMalla = async () => {
+  cargando.value = true;
   try {
-    const res = await axios.get(`http://localhost:8080/api/academico/malla/${ID_ESTUDIANTE}`);
+    // Ssamos la variable dinámica idEstudianteActual.value
+    const res = await axios.get(`http://localhost:8080/api/academico/malla/${idEstudianteActual.value}`);
     
     listaMaterias.value = res.data.map(item => ({
       id: Number(item.idMateria),
       nombre: item.nombreMateria,
-      sigla: item.sigla || '', // Asegurar que no sea null
+      sigla: item.sigla || '',
       semestre: item.semestre,
       aprobado: String(item.estado) === 'true',
       requisitos: item.prerrequisitos ? String(item.prerrequisitos).split(',').map(Number) : []
@@ -153,18 +173,24 @@ onMounted(async () => {
     
   } catch (e) {
     console.error("Error cargando malla:", e);
+    alert("No se pudo cargar la información del estudiante.");
   } finally {
     cargando.value = false;
   }
+};
+
+// Ejecutamos la carga al iniciar
+onMounted(() => {
+    cargarMalla();
 });
 
 // --- LÓGICA DE AGRUPACIÓN (INGLÉS vs CARRERA) ---
 
-// 1. Detectar Inglés
+// Detectar Inglés
 const esIngles = (m) => {
-  // Criterio 1: Sigla empieza con IDM
+  // Sigla empieza con IDM
   if (m.sigla && m.sigla.toUpperCase().startsWith('IDM')) return true;
-  // Criterio 2: El nombre dice "Inglés" o "Idioma"
+  // El nombre dice "Inglés" o "Idioma"
   const nombre = m.nombre.toLowerCase();
   return nombre.includes('inglés') || nombre.includes('ingles') || nombre.includes('idioma');
 };
@@ -172,7 +198,7 @@ const esIngles = (m) => {
 const materiasIngles = computed(() => {
   return listaMaterias.value
     .filter(m => esIngles(m))
-    .sort((a, b) => a.nombre.localeCompare(b.nombre)); // Ordenar alfabéticamente
+    .sort((a, b) => a.nombre.localeCompare(b.nombre)); 
 });
 
 const materiasPorSemestre = computed(() => {
@@ -190,7 +216,7 @@ const materiasPorSemestre = computed(() => {
   return grupos;
 });
 
-// --- FUNCIONES ---
+
 const esMateriaBloqueada = (materia) => {
   if (materia.aprobado) return false;
   if (materia.requisitos.length === 0) return false;
@@ -230,7 +256,6 @@ const toggleSeleccion = (materia) => {
     materiasSeleccionadas.value.push(idNum);
   }
   
-  // NO hace falta la línea "materiasSeleccionadas.value = ...", Vue 3 ya es reactivo con push y splice.
 };
 
 const manejarGeneracion = async () => {
@@ -242,10 +267,10 @@ const manejarGeneracion = async () => {
         const res = await axios.post('http://localhost:8080/api/generador/generar', materiasSeleccionadas.value);
         
         if (res.data.mensaje && !res.data.data) {
-            alert(res.data.mensaje); // "No hay combinaciones"
+            alert(res.data.mensaje); 
         } else {
-            opcionesGeneradas.value = res.data; // Guardamos los datos
-            mostrarResultados.value = true;     // Abrimos el componente hijo
+            opcionesGeneradas.value = res.data;
+            mostrarResultados.value = true;    
         }
     } catch (e) {
         console.error(e);
@@ -304,7 +329,7 @@ const descargarExcelIndividual = async (listaIdsParalelos) => {
     try {
         const response = await axios.post(
             'http://localhost:8080/api/generador/exportar-individual', 
-            listaIdsParalelos, // Enviamos solo los IDs de esa opción
+            listaIdsParalelos, 
             { responseType: 'blob' }
         );
         
@@ -326,13 +351,13 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
         const response = await axios.post(
             'http://localhost:8080/api/generador/exportar-pdf-individual', 
             listaIdsParalelos,
-            { responseType: 'blob' } // Importante
+            { responseType: 'blob' } 
         );
         
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'mi_horario.pdf'); // Extensión .pdf
+        link.setAttribute('download', 'mi_horario.pdf'); 
         document.body.appendChild(link);
         link.click();
     } catch (error) {
@@ -348,12 +373,12 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
 
 .contenedor-malla-light {
   width: 100%;
-  height: 100%; /* Ocupa el contenedor padre */
+  height: 100%; 
   background-color: #f3f4f6;
   display: flex;
   flex-direction: column;
   font-family: 'Segoe UI', sans-serif;
-  overflow: hidden; /* Evita doble scroll */
+  overflow: hidden; 
 }
 
 /* HEADER */
@@ -365,7 +390,7 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  flex-shrink: 0; /* No se encoge */
+  flex-shrink: 0; 
 }
 
 .header-light h2 { margin: 0; font-size: 20px; color: #002b55; display: flex; align-items: center; gap: 10px; }
@@ -405,7 +430,7 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
 
 /* ESTILO ESPECIAL INGLÉS */
 .columna-ingles {
-  border: 2px solid #8b5cf6; /* Borde morado */
+  border: 2px solid #8b5cf6; 
   background: #faf5ff;
 }
 .header-ingles { color: #7c3aed !important; background: #f3e8ff !important; }
@@ -427,7 +452,7 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
-  /* Scrollbar fina */
+
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
@@ -447,21 +472,31 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
 }
 .card-materia:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 5; }
 
+.card-body {
+    padding: 5px;             
+    font-size: 11px;          
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 .card-top { display: flex; justify-content: space-between; margin-bottom: 5px; }
 .sigla-tag { font-size: 10px; font-weight: bold; color: #6b7280; background: #f3f4f6; padding: 2px 5px; border-radius: 4px; }
 .icon-status { font-size: 14px; }
 .circle-placeholder { width: 14px; height: 14px; border: 1px solid #d1d5db; border-radius: 50%; }
 
 .card-body {
-    /* ... lo que ya tienes ... */
+
     display: -webkit-box;
     -webkit-line-clamp: 3;
-    line-clamp: 3;            /* <--- Agrega esta línea */
+    line-clamp: 3;           
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* ESTADOS */
+
 .status-aprobado { border-left: 4px solid #10b981; opacity: 0.6; background: #f9fafb; cursor: default; }
 .status-aprobado .check { color: #10b981; }
 
@@ -473,7 +508,6 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
 
 .status-bloqueado { background: #f9fafb; border: 1px dashed #d1d5db; color: #9ca3af; cursor: not-allowed; }
 
-/* PANEL DERECHO */
 .panel-derecho {
   width: 0;
   background: white;
@@ -514,7 +548,6 @@ const descargarPdfIndividual = async (listaIdsParalelos) => {
 }
 .btn-generar:hover { background: #1e40af; transform: translateY(-2px); }
 
-/* LOADING */
 .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 15px; color: #6b7280; flex: 1; }
 .spinner-blue { width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #002b55; border-radius: 50%; animation: spin 1s linear infinite; }
 

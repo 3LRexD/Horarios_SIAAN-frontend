@@ -94,7 +94,6 @@ const emit = defineEmits(['cerrar', 'descargarExcel', 'descargarIndividual', 'de
 const emitirCerrar = () => emit('cerrar');
 const emitirDescargaExcel = () => emit('descargarExcel');
 
-// --- 1. DEFINICIÓN DE LOS BLOQUES DE TIEMPO (IGUAL AL EXCEL) ---
 // Estos son los intervalos exactos que usa tu universidad
 const horariosFijos = [
     { label: "07:15 - 08:00", inicio: "07:15", fin: "08:00" },
@@ -116,7 +115,7 @@ const horariosFijos = [
 ];
 
 
-// --- 2. FUNCIÓN PARA BUSCAR SI HAY CLASE EN ESE BLOQUE ---
+// FUNCIÓN PARA BUSCAR SI HAY CLASE EN ESE BLOQUE ---
 const buscarClase = (listaClases, diaColumna, bloque) => {
     if (!listaClases) return null;
 
@@ -127,10 +126,10 @@ const buscarClase = (listaClases, diaColumna, bloque) => {
         if (!clase.dia) return false;
         const diaClase = clase.dia.toUpperCase().replace('É', 'E').replace('Á', 'A');
         
-        // 1. Coincidir el día
+        //Coincidir el día
         if (diaClase !== diaBuscado) return false;
 
-        // 2. Coincidir la hora:
+        // Coincidir la hora
         // Verificamos si el bloque actual está "dentro" del horario de la clase.
         // Convertimos strings "07:15" a comparables si es necesario, pero 
         // string comparison suele funcionar bien con formato HH:MM militar.
@@ -145,22 +144,21 @@ const estiloCelda = (listaClases, dia, bloque) => {
     if (claseEncontrada) {
         return {
             backgroundColor: claseEncontrada.color,
-            color: '#000', // Texto negro
+            color: '#000', 
             fontWeight: 'bold',
-            fontSize: '10px', // Letra un poco más pequeña para que quepa
+            fontSize: '10px', 
             border: '1px solid #ccc',
             textAlign: 'center',
             verticalAlign: 'middle',
             padding: '2px'
         };
     }
-    return {}; // Celda vacía
+    return {}; 
 };
 
 const textoCelda = (listaClases, dia, bloque) => {
     const claseEncontrada = buscarClase(listaClases, dia, bloque);
     if (claseEncontrada) {
-        // Mostramos Sigla o Nombre corto para que entre
         return `${claseEncontrada.nombreMateria}`;
     }
     return '';
@@ -185,7 +183,7 @@ const emitirDescargaPdf = (opcion) => {
 </script>
 
 <style scoped>
-/* ESTILOS (Mismos de antes con pequeños ajustes) */
+
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0, 0, 0, 0.85);
@@ -193,7 +191,7 @@ const emitirDescargaPdf = (opcion) => {
 }
 
 .modal-content {
-  background: #f0f2f5; width: 95%; height: 95%; /* Un poco más alto */
+  background: #f0f2f5; width: 95%; height: 95%; 
   border-radius: 12px; display: flex; flex-direction: column;
   overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
 }
@@ -216,7 +214,7 @@ const emitirDescargaPdf = (opcion) => {
 }
 
 .opcion-card {
-  min-width: 550px; /* Un poco más ancha para que entren los días */
+  min-width: 550px;
   max-width: 600px;
   background: white; border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -252,7 +250,7 @@ background: #c82333;
 
 .tabla-horario { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
 .tabla-horario th { background: #003366; color: white; padding: 4px; position: sticky; top: 0; z-index: 1;}
-.col-hora { width: 80px; } /* Ancho fijo para la hora */
+.col-hora { width: 80px; } 
 
 .tabla-horario td { border: 1px solid #ddd; padding: 2px; text-align: center; height: 30px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
 .hora-celda { background: #eee; font-weight: bold; font-size: 10px; color: #333;}

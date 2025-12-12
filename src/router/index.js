@@ -35,7 +35,7 @@ const routes = [
   component: SIAAN, 
   children: [
     { 
-      path: 'crear-horario', // Ojo: sin la barra '/' al principio
+      path: 'crear-horario', 
       component: Horario 
     }
   ]
