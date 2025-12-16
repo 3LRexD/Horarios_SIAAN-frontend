@@ -1,38 +1,97 @@
-# horarios-vue
+# 🎓 Frontend – Sistema Académico UCB
 
-This template should help get you started developing with Vue 3 in Vite.
+Este repositorio contiene el **frontend** del sistema académico, desarrollado con **Vue 3** y **Vite**.  
+La aplicación se encarga de la interfaz de usuario e interactúa con un **backend mediante una API REST** para la autenticación y consulta de información académica.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Tecnologías utilizadas
 
-## Recommended Browser Setup
+- Vue.js 3
+- Vite
+- Vue Router
+- JavaScript
+- HTML5
+- CSS3
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Customize configuration
+## Estructura del proyecto
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+```txt
+src/
+│
+├── assets/            # Imágenes y recursos estáticos
+│   └── img/
+│
+├── router/            # Configuración de rutas
+│   └── index.js
+│
+├── views/             # Vistas principales del sistema
+│   ├── Login.vue
+│   ├── Horario.vue
+│   ├── SIAAN.vue
+│   └── VistaResultados.vue
+│
+├── main.js            # Punto de entrada de la aplicación
+│
+vite.config.js         # Configuración de Vite
 
-## Project Setup
+## Requisitos previos
 
-```sh
-npm install
-```
+Antes de ejecutar el proyecto, asegúrate de tener instalado:
 
-### Compile and Hot-Reload for Development
+Node.js (versión 18 o superior recomendada)
 
-```sh
-npm run dev
-```
+npm o yarn
 
-### Compile and Minify for Production
+## Instalación y ejecución
 
-```sh
-npm run build
-```
+1. Clona el repositorio o descarga el proyecto
+2. Accede a la carpeta del frontend:
+-cd Vue
+
+3. Instala las dependencias:
+-npm install
+
+4. Ejecuta el servidor de desarrollo:
+-npm run dev
+
+5. Abre el navegador y accede a:
+-http://localhost:5173
+
+## Conexión con el Backend
+
+Este frontend consume servicios de un backend mediante HTTP.
+
+Si el backend utiliza una URL configurable, crea un archivo .env en la raíz del proyecto con el siguiente contenido:
+-VITE_API_URL=http://localhost:3000
+
+##  Características
+
+###  **Autenticación Dual**
+- Login tradicional con validación en tiempo real
+- **Google OAuth2** para cuentas @ucb.edu.bo
+- Persistencia de sesión con localStorage
+
+###  **Malla Curricular Interactiva**
+- Visualización por semestres
+- Estados diferenciados: ✅ Aprobado, ⭐ Seleccionado, 🔓 Disponible, 🔒 Bloqueado
+- Sistema automático de **prerrequisitos**
+- Materias de **inglés** como requisito transversal
+
+###  **Generador Inteligente de Horarios**
+- Selección visual de materias
+- Algoritmo de generación de múltiples opciones
+- Prevención de conflictos de horario
+- Exportación **Excel y PDF**
+
+### **Interfaz Moderna**
+- Diseño **responsive** con temática UCB
+- Sidebar colapsable con menú jerárquico
+- Carrusel interactivo con autoplay
+- Feedback visual en tiempo real
+
+## Dependencia del Backend
+Este proyecto **requiere** que el backend esté en ejecución para funcionar correctamente.
+Sin el backend, solo se puede visualizar la interfaz.
